@@ -29,11 +29,7 @@ func NewPubSub(project, topic string) (*Message, error) {
 	if err != nil {
 		return nil, err
 	}
-	t, err := client.CreateTopic(ctx, m.TopicName)
-	if err != nil {
-		return nil, err
-	}
-	m.topic = t
+	m.topic = client.Topic(m.TopicName)
 	m.ctx = ctx
 	m.messageType = _pubSub
 
