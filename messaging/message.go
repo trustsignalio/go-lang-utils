@@ -41,11 +41,11 @@ func NewPubSub(project, topic string) (*Message, error) {
 }
 
 // Send will check whether message delivery was acknowledged by the service
-func (m *Message) Send(msg string) bool {
+func (m *Message) Send(msg []byte) bool {
 	switch m.messageType {
 	case _pubSub:
 		var result = m.topic.Publish(m.ctx, &pubsub.Message{
-			Data: []byte(msg),
+			Data: msg,
 		})
 		var _, err = result.Get(m.ctx)
 		// TODO: may be retry sending the message if it failed?
