@@ -32,5 +32,5 @@ func (cc *Client) Get(key string) (interface{}, bool) {
 }
 
 func (cc *Client) Delete(key string) {
-	cc.client.Delete(key)
+	cc.client.Delete(cc.getKeyName(key))
 }
