@@ -22,6 +22,7 @@ type Params struct {
 func SendViaMailgun(conf *Config, params *Params) (string, string, error) {
 	mg := mailgun.NewMailgun(conf.Domain, conf.Key)
 	message := mg.NewMessage(params.Sender, params.Subject, params.Body, params.Recipient)
+	message.SetHtml(params.Body)
 
 	for _, emailID := range params.CC {
 		message.AddCC(emailID)
