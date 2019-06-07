@@ -8,12 +8,13 @@ import (
 
 // ClientOptions struct contains the options for connecting to redis
 type ClientOptions struct {
-	Host         string
-	Port         string
-	Password     string
-	MaxRetries   int
-	WriteTimeout time.Duration
-	DB           int
+	Host            string
+	Port            string
+	Password        string
+	MaxRetries      int
+	MinRetryBackOff time.Duration
+	WriteTimeout    time.Duration
+	DB              int
 }
 
 // Client struct holds connection to redis
@@ -24,11 +25,12 @@ type Client struct {
 // NewClient method will return a pointer to new client object
 func NewClient(opts *ClientOptions) *Client {
 	redisClient := redis.NewClient(&redis.Options{
-		Addr:         opts.Host + ":" + opts.Port,
-		Password:     opts.Password,
-		DB:           opts.DB,
-		MaxRetries:   opts.MaxRetries,
-		WriteTimeout: opts.WriteTimeout,
+		Addr:            opts.Host + ":" + opts.Port,
+		Password:        opts.Password,
+		DB:              opts.DB,
+		MaxRetries:      opts.MaxRetries,
+		MinRetryBackoff: opts.MinRetryBackOff,
+		WriteTimeout:    opts.WriteTimeout,
 	})
 	var client = &Client{conn: redisClient}
 	return client
