@@ -13,6 +13,7 @@ type ClientOptions struct {
 	Password        string
 	MaxRetries      int
 	MinRetryBackOff time.Duration
+	MaxRetryBackOff time.Duration
 	WriteTimeout    time.Duration
 	DB              int
 }
@@ -30,6 +31,7 @@ func NewClient(opts *ClientOptions) *Client {
 		DB:              opts.DB,
 		MaxRetries:      opts.MaxRetries,
 		MinRetryBackoff: opts.MinRetryBackOff,
+		MaxRetryBackoff: opts.MaxRetryBackOff,
 		WriteTimeout:    opts.WriteTimeout,
 	})
 	var client = &Client{conn: redisClient}
