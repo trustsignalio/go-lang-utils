@@ -44,6 +44,9 @@ func (d *Dispatcher) dispatch(jobPool chan Job) {
 }
 
 func (d *Dispatcher) sendJobToWorker(job Job) {
+	if job == nil {
+		return
+	}
 	// Get a worker from the worker pool
 	worker := <-d.workerPool
 
