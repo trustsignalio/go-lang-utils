@@ -4,7 +4,7 @@ package workerqueue
 // start each worker, it contains a worker pool channel of fixed size ie buffered
 type Dispatcher struct {
 	maxWorkers int
-	workers    []Worker
+	workers    []*Worker
 	workerPool chan chan Job
 }
 

@@ -9,8 +9,8 @@ type Worker struct {
 }
 
 // NewWorker method will create a worker object and return it
-func NewWorker(id int, workerPool chan chan Job) Worker {
-	worker := Worker{
+func NewWorker(id int, workerPool chan chan Job) *Worker {
+	worker := &Worker{
 		ID:         id,
 		JobChannel: make(chan Job),
 		WorkerPool: workerPool,
