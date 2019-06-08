@@ -31,6 +31,7 @@ func (d *Dispatcher) Stop() {
 	for _, w := range d.workers {
 		w.Stop()
 	}
+	close(d.workerPool)
 }
 
 func (d *Dispatcher) dispatch(jobPool chan Job) {
