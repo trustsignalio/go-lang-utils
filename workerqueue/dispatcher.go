@@ -9,10 +9,10 @@ type Dispatcher struct {
 }
 
 // NewDispatcher method will return a dispatcher object
-func NewDispatcher(maxWorkers int) Dispatcher {
+func NewDispatcher(maxWorkers int) *Dispatcher {
 	pool := make(chan chan Job, maxWorkers)
 	dis := Dispatcher{workerPool: pool, maxWorkers: maxWorkers}
-	return dis
+	return &dis
 }
 
 // Run method will start the workers with the given jobPool which will be
