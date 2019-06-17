@@ -81,10 +81,7 @@ func (c *Client) Request(opts *RequestOptions) (*Response, error) {
 		respData.Status = resp.Status
 		respData.StatusCode = resp.StatusCode
 		respData.Cookies = resp.Cookies()
-
-		for k, v := range resp.Header {
-			respData.Header[k] = v
-		}
+		respData.Header = resp.Header
 
 		if readErr != nil {
 			return respData, readErr
