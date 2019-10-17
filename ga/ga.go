@@ -16,9 +16,7 @@ var (
 // Analytics struct contains the information which can be sent to
 type Analytics struct {
 	ClientID        string
-	HitType         string
 	DataSource      string
-	UserID          string
 	UserIP          string
 	UserAgent       string
 	DocumentReferer string
