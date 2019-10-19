@@ -23,6 +23,7 @@ type Analytics struct {
 	CampaignName    string
 	CampaignSource  string
 	CampaignMedium  string
+	CampaignKeyword string
 	CampaignID      string
 	DocumentHost    string
 	DocumentPath    string
@@ -59,6 +60,7 @@ func (queue *Queue) Push(data *Analytics) {
 			q.Add("cn", data.CampaignName)
 			q.Add("cs", data.CampaignSource)
 			q.Add("cm", data.CampaignMedium)
+			q.Add("ck", data.CampaignKeyword)
 			q.Add("t", hitType)
 			q.Add("dh", data.DocumentHost)
 			q.Add("dp", data.DocumentPath)
