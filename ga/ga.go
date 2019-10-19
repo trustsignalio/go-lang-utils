@@ -1,8 +1,10 @@
 package ga
 
 import (
+	"net"
 	netHttp "net/http"
 	"sync"
+	"time"
 )
 
 const baseURL = "https://www.google-analytics.com/collect"
@@ -11,6 +13,17 @@ const hitType = "pageview"
 
 var (
 	mu sync.Mutex
+
+	defaultTransport = &netHttp.Transport{
+		Dial: (&net.Dialer{
+			KeepAlive: 600 * time.Second}).Dial,
+		MaxIdleConns:        100,
+		MaxIdleConnsPerHost: 100,
+	}
+	requestClient = &netHttp.Client{
+		Transport: defaultTransport,
+		Timeout:   2 * time.Second,
+	}
 )
 
 // Analytics struct contains the information which can be sent to
@@ -47,31 +60,31 @@ func (queue *Queue) Push(data *Analytics) {
 
 	if currentGACount <= queue.SendCount {
 		var req, err = netHttp.NewRequest("GET", baseURL, nil)
-		if err == nil {
-			q := req.URL.Query()
-			q.Add("v", version)
-			q.Add("tid", queue.TrackingID)
-			q.Add("cid", data.ClientID)
-			q.Add("uip", data.UserIP)
-			q.Add("ua", data.UserAgent)
-			q.Add("dr", data.DocumentReferer)
-			q.Add("ds", data.DataSource)
-			q.Add("ci", data.CampaignID)
-			q.Add("cn", data.CampaignName)
-			q.Add("cs", data.CampaignSource)
-			q.Add("cm", data.CampaignMedium)
-			q.Add("ck", data.CampaignKeyword)
-			q.Add("t", hitType)
-			q.Add("dh", data.DocumentHost)
-			q.Add("dp", data.DocumentPath)
-			q.Add("dt", data.DocumentTitle)
-			req.URL.RawQuery = q.Encode()
+		if err != nil {
+			return
+		}
+		q := req.URL.Query()
+		q.Add("v", version)
+		q.Add("tid", queue.TrackingID)
+		q.Add("cid", data.ClientID)
+		q.Add("uip", data.UserIP)
+		q.Add("ua", data.UserAgent)
+		q.Add("dr", data.DocumentReferer)
+		q.Add("ds", data.DataSource)
+		q.Add("ci", data.CampaignID)
+		q.Add("cn", data.CampaignName)
+		q.Add("cs", data.CampaignSource)
+		q.Add("cm", data.CampaignMedium)
+		q.Add("ck", data.CampaignKeyword)
+		q.Add("t", hitType)
+		q.Add("dh", data.DocumentHost)
+		q.Add("dp", data.DocumentPath)
+		q.Add("dt", data.DocumentTitle)
+		req.URL.RawQuery = q.Encode()
 
-			var client = &netHttp.Client{}
-			var resp, err = client.Do(req)
-			if err == nil {
-				resp.Body.Close()
-			}
+		var resp, _ = requestClient.Do(req)
+		if err == nil {
+			resp.Body.Close()
 		}
 	} else if currentGACount > queue.ResetCount {
 		mu.Lock()
