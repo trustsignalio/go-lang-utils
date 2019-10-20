@@ -14,9 +14,12 @@ const (
 // messaging services like pub/sub or kafka
 type Message struct {
 	Project     string
+	SubName     string
 	TopicName   string
 	messageType string
+	client      *pubsub.Client
 	topic       *pubsub.Topic
+	sub         *pubsub.Subscription
 	ctx         context.Context
 }
 
@@ -29,11 +32,32 @@ func NewPubSub(project, topic string) (*Message, error) {
 	if err != nil {
 		return nil, err
 	}
+	m.client = client
 	m.topic = client.Topic(m.TopicName)
 	m.ctx = ctx
 	m.messageType = _pubSub
 
 	return m, nil
+}
+
+// NewSubscription method will create a subscription
+func NewSubscription(project, subName string) (*Message, error) {
+	var ctx = context.Background()
+	var client, err = pubsub.NewClient(ctx, project)
+	if err != nil {
+		return nil, err
+	}
+	var m = &Message{Project: project, SubName: subName, client: client, ctx: ctx}
+	m.sub = client.Subscription(m.SubName)
+
+	return m, nil
+}
+
+// Receive method will create a receiver for the subscription
+func (m *Message) Receive(callback func(ctx context.Context, msg *pubsub.Message)) error {
+	var cctx = context.Background()
+	var err = m.sub.Receive(cctx, callback)
+	return err
 }
 
 // Send will check whether message delivery was acknowledged by the service
