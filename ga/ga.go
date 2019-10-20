@@ -82,8 +82,8 @@ func (queue *Queue) Push(data *Analytics) {
 		q.Add("dt", data.DocumentTitle)
 		req.URL.RawQuery = q.Encode()
 
-		var resp, _ = requestClient.Do(req)
-		if err == nil {
+		var resp, reqErr = requestClient.Do(req)
+		if reqErr == nil {
 			resp.Body.Close()
 		}
 	} else if currentGACount > queue.ResetCount {
