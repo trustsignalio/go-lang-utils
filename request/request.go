@@ -8,12 +8,13 @@ import (
 	"time"
 )
 
-// ClientOptions
+// ClientOptions struct contains options for HTTP Client which will
+// be long lived client
 type ClientOptions struct {
 	Timeout int
 }
 
-// Client
+// Client struct contains reference to internal http client
 type Client struct {
 	backendClient *netHttp.Client
 }
@@ -38,7 +39,7 @@ type Response struct {
 	Cookies      []*netHttp.Cookie
 }
 
-// NewClient
+// NewClient method returns a pointer to the Client
 func NewClient(opts *ClientOptions) *Client {
 	var c = &netHttp.Client{
 		Timeout: time.Duration(opts.Timeout) * time.Second,
@@ -59,12 +60,18 @@ func (c *Client) Request(opts *RequestOptions) (*Response, error) {
 	byteBody := []byte(opts.Body)
 	var body = bytes.NewBuffer(byteBody)
 	var req, err = netHttp.NewRequest(opts.Method, url, body)
+	for k, v := range opts.Headers {
+		req.Header.Set(k, v)
+	}
 	if err != nil {
 		return nil, err
 	}
 	var lastError error
 	if opts.RetryInterval == 0 {
 		opts.RetryInterval = 1 * time.Second
+	}
+	if opts.Retries == 0 {
+		opts.Retries = 1
 	}
 	var respData = &Response{}
 	for index := 0; index < opts.Retries; index++ {
