@@ -1,9 +1,12 @@
 package redis
 
 import (
+	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/go-redis/redis"
+	"github.com/mediocregopher/radix"
 )
 
 // ClientOptions struct contains the options for connecting to redis
@@ -23,6 +26,10 @@ type Client struct {
 	conn *redis.Client
 }
 
+type Clientv2 struct {
+	pool *radix.Pool
+}
+
 // NewClient method will return a pointer to new client object
 func NewClient(opts *ClientOptions) *Client {
 	redisClient := redis.NewClient(&redis.Options{
@@ -38,14 +45,41 @@ func NewClient(opts *ClientOptions) *Client {
 	return client
 }
 
+// NewV2Client will return the pool connection to radix object
+func NewV2Client(opts *ClientOptions) *Clientv2 {
+	var db = strconv.Itoa(opts.DB)
+	rclient, _ := radix.NewPool("tcp", "redis://user:"+opts.Password+"@"+opts.Host+":"+opts.Port+"/"+db, 10)
+	var client = &Clientv2{pool: rclient}
+	return client
+}
+
 // GetConn returns a pointer to the underlying redis library
 func (c *Client) GetConn() *redis.Client {
 	return c.conn
+}
+
+// HIncrBy will increment a hash map key
+func (c *Clientv2) HIncrBy(key, field string, inc int64) {
+	val := strconv.Itoa(int(inc))
+	c.pool.Do(radix.Cmd(nil, "HINCRBY", key, field, val))
+}
+
+// HIncrByFloat will increment a hash map key
+func (c *Clientv2) HIncrByFloat(key, field string, inc float64) {
+	val := fmt.Sprintf("%f", inc)
+	c.pool.Do(radix.Cmd(nil, "HINCRBYFLOAT", key, field, val))
 }
 
 // Close method closes the redis connection
 func (c *Client) Close() {
 	if c.conn != nil {
 		c.conn.Close()
+	}
+}
+
+// Close method closes the redis connection
+func (c *Clientv2) Close() {
+	if c.pool != nil {
+		c.pool.Close()
 	}
 }
