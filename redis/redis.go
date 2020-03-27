@@ -26,6 +26,7 @@ type Client struct {
 	conn *redis.Client
 }
 
+// Clientv2 struct holds pool connection to redis using radix dep
 type Clientv2 struct {
 	pool *radix.Pool
 }
@@ -47,8 +48,16 @@ func NewClient(opts *ClientOptions) *Client {
 
 // NewV2Client will return the pool connection to radix object
 func NewV2Client(opts *ClientOptions) *Clientv2 {
-	var db = strconv.Itoa(opts.DB)
-	rclient, _ := radix.NewPool("tcp", "redis://user:"+opts.Password+"@"+opts.Host+":"+opts.Port+"/"+db, 10)
+	// Ref: https://github.com/mediocregopher/radix/blob/master/radix.go#L107
+	customConnFunc := func(network, addr string) (radix.Conn, error) {
+		return radix.Dial(network, addr,
+			radix.DialTimeout(20*time.Second),
+			radix.DialAuthPass(opts.Password),
+			radix.DialSelectDB(opts.DB),
+		)
+	}
+
+	rclient, _ := radix.NewPool("tcp", opts.Host+":"+opts.Port, 10, radix.PoolConnFunc(customConnFunc))
 	var client = &Clientv2{pool: rclient}
 	return client
 }
