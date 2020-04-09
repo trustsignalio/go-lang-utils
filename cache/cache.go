@@ -57,6 +57,7 @@ func (cc *MultiClient) getKeyName(key string) string {
 	return cc.prefix + "_" + key
 }
 
+// Set method will set the object in both memory cache and memcache
 func (cc *MultiClient) Set(key string, val interface{}) {
 	k := cc.getKeyName(key)
 	cc.client.SetDefault(k, val)
@@ -71,6 +72,7 @@ func (cc *MultiClient) Set(key string, val interface{}) {
 	}
 }
 
+// Get method tires to find the key from memory cache then check memcache
 func (cc *MultiClient) Get(key string) (interface{}, bool) {
 	k := cc.getKeyName(key)
 	result, found := cc.client.Get(k)
@@ -89,6 +91,28 @@ func (cc *MultiClient) Get(key string) (interface{}, bool) {
 	return nil, false
 }
 
+// GetWithSet method tries to get the key from program memory cache and if
+// it fails then tries memcache and if the item is found in memcache then it
+// is set in program memory for faster lookup
+func (cc *MultiClient) GetWithSet(key string, resultObj interface{}) (interface{}, bool) {
+	k := cc.getKeyName(key)
+	result, found := cc.client.Get(k)
+	if found {
+		return result, found
+	}
+	item, err := cc.mc.Get(k)
+	if err == nil {
+		err = json.Unmarshal(item.Value, resultObj)
+		if err == nil {
+			cc.client.SetDefault(k, resultObj)
+			return resultObj, true
+		}
+	}
+
+	return nil, false
+}
+
+// Delete method will remove the key from both memory cache and memcache
 func (cc *MultiClient) Delete(key string) {
 	k := cc.getKeyName(key)
 	cc.client.Delete(k)
