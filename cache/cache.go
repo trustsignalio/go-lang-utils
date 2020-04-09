@@ -15,7 +15,7 @@ type Client struct {
 
 type MultiClient struct {
 	prefix     string
-	expiration time.Duration
+	expiration int32
 	client     *cache.Cache
 	mc         *memcache.Client
 }
@@ -49,7 +49,7 @@ func NewMultiClient(prefix, mcServer string, defCacheTime int) *MultiClient {
 	c := cache.New(cacheTime, 10*time.Minute)
 	mc := memcache.New(mcServer)
 
-	var cc = &MultiClient{client: c, mc: mc, prefix: prefix, expiration: cacheTime}
+	var cc = &MultiClient{client: c, mc: mc, prefix: prefix, expiration: int32(defCacheTime * 60)}
 	return cc
 }
 
@@ -67,7 +67,7 @@ func (cc *MultiClient) Set(key string, val interface{}) {
 		cc.mc.Set(&memcache.Item{
 			Key:        k,
 			Value:      result,
-			Expiration: int32(time.Now().Add(cc.expiration).Unix()),
+			Expiration: cc.expiration,
 		})
 	}
 }
@@ -104,8 +104,7 @@ func (cc *MultiClient) GetWithSet(key string, resultObj interface{}) (interface{
 	if err == nil {
 		err = json.Unmarshal(item.Value, resultObj)
 		if err == nil {
-			seconds := time.Now().Unix() - int64(item.Expiration)
-			cc.client.Set(k, resultObj, time.Duration(seconds)*time.Second)
+			cc.client.Set(k, resultObj, 5*time.Minute)
 			return resultObj, true
 		}
 	}
