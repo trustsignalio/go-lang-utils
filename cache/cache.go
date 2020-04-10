@@ -73,6 +73,12 @@ func (cc *MultiClient) Set(key string, val interface{}) {
 	}
 }
 
+// SetInMemory method will set the object in memory cache
+func (cc *MultiClient) SetInMemory(key string, val interface{}) {
+	k := cc.getKeyName(key)
+	cc.client.Set(k, val, time.Duration(cc.expiration)*time.Second)
+}
+
 // SetWithExpire method will set the object in both memory cache and memcache
 func (cc *MultiClient) SetWithExpire(key string, val interface{}, secs int) {
 	k := cc.getKeyName(key)
@@ -139,11 +145,7 @@ func (cc *MultiClient) GetSliceWithSet(key string, resultObj interface{}) (inter
 	}
 	item, err := cc.mc.Get(k)
 	if err == nil {
-		err = json.Unmarshal(item.Value, &resultObj)
-		if err == nil {
-			cc.client.Set(k, resultObj, 5*time.Minute)
-			return resultObj, true
-		}
+		return item.Value, true
 	}
 
 	return nil, false
