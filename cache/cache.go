@@ -137,7 +137,7 @@ func (cc *MultiClient) GetWithSet(key string, resultObj interface{}) (interface{
 // GetSliceWithSet method tries to get the key from program memory cache and if
 // it fails then tries memcache and if the item is found in memcache then it
 // is set in program memory for faster lookup
-func (cc *MultiClient) GetSliceWithSet(key string, resultObj interface{}) (interface{}, bool) {
+func (cc *MultiClient) GetSliceWithSet(key string) (interface{}, bool) {
 	k := cc.getKeyName(key)
 	result, found := cc.client.Get(k)
 	if found {
@@ -146,6 +146,27 @@ func (cc *MultiClient) GetSliceWithSet(key string, resultObj interface{}) (inter
 	item, err := cc.mc.Get(k)
 	if err == nil {
 		return item.Value, true
+	}
+
+	return nil, false
+}
+
+// GetPrimitiveWithSet method tries to get the key from program memory cache and if
+// it fails then tries memcache and if the item is found in memcache then it
+// is set in program memory for faster lookup
+func (cc *MultiClient) GetPrimitiveWithSet(key string, resultObj interface{}) (interface{}, bool) {
+	k := cc.getKeyName(key)
+	result, found := cc.client.Get(k)
+	if found {
+		return result, found
+	}
+	item, err := cc.mc.Get(k)
+	if err == nil {
+		err = json.Unmarshal(item.Value, &resultObj)
+		if err == nil {
+			cc.client.Set(k, resultObj, 5*time.Minute)
+			return resultObj, true
+		}
 	}
 
 	return nil, false
