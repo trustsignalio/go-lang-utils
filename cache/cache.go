@@ -112,6 +112,27 @@ func (cc *MultiClient) GetWithSet(key string, resultObj interface{}) (interface{
 	return nil, false
 }
 
+// GetSliceWithSet method tries to get the key from program memory cache and if
+// it fails then tries memcache and if the item is found in memcache then it
+// is set in program memory for faster lookup
+func (cc *MultiClient) GetSliceWithSet(key string, resultObj interface{}) (interface{}, bool) {
+	k := cc.getKeyName(key)
+	result, found := cc.client.Get(k)
+	if found {
+		return result, found
+	}
+	item, err := cc.mc.Get(k)
+	if err == nil {
+		err = json.Unmarshal(item.Value, &resultObj)
+		if err == nil {
+			cc.client.Set(k, resultObj, 5*time.Minute)
+			return resultObj, true
+		}
+	}
+
+	return nil, false
+}
+
 // Delete method will remove the key from both memory cache and memcache
 func (cc *MultiClient) Delete(key string) {
 	k := cc.getKeyName(key)
