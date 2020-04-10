@@ -54,6 +54,11 @@ func NewMultiClient(prefix, mcServer string, defCacheTime int) *MultiClient {
 	return cc
 }
 
+// GetInternalClient method will return the pointer to internal memory cache client
+func (cc *MultiClient) GetInternalClient() *cache.Cache {
+	return cc.client
+}
+
 func (cc *MultiClient) getKeyName(key string) string {
 	return cc.prefix + "_" + key
 }
