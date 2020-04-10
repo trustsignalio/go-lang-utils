@@ -134,10 +134,10 @@ func (cc *MultiClient) GetWithSet(key string, resultObj interface{}) (interface{
 	return nil, false
 }
 
-// GetSliceWithSet method tries to get the key from program memory cache and if
+// GetSliceOrBytes method tries to get the key from program memory cache and if
 // it fails then tries memcache and if the item is found in memcache then it
 // is set in program memory for faster lookup
-func (cc *MultiClient) GetSliceWithSet(key string) (interface{}, bool) {
+func (cc *MultiClient) GetSliceOrBytes(key string) (interface{}, bool) {
 	k := cc.getKeyName(key)
 	result, found := cc.client.Get(k)
 	if found {
