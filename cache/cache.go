@@ -44,12 +44,13 @@ func (cc *Client) Delete(key string) {
 	cc.client.Delete(cc.getKeyName(key))
 }
 
+// NewMultiClient method will return a pointer to MultiClient object
 func NewMultiClient(prefix, mcServer string, defCacheTime int) *MultiClient {
 	var cacheTime = time.Duration(defCacheTime) * time.Minute
 	c := cache.New(cacheTime, 10*time.Minute)
 	mc := memcache.New(mcServer)
 
-	var cc = &MultiClient{client: c, mc: mc, prefix: prefix, expiration: int32(defCacheTime * 60)}
+	var cc = &MultiClient{client: c, mc: mc, prefix: prefix, expiration: int32(defCacheTime * 36)}
 	return cc
 }
 
@@ -68,6 +69,21 @@ func (cc *MultiClient) Set(key string, val interface{}) {
 			Key:        k,
 			Value:      result,
 			Expiration: cc.expiration,
+		})
+	}
+}
+
+// SetWithExpire method will set the object in both memory cache and memcache
+func (cc *MultiClient) SetWithExpire(key string, val interface{}, secs int) {
+	k := cc.getKeyName(key)
+	cc.client.Set(k, val, time.Duration(secs)*time.Second)
+
+	result, err := json.Marshal(val)
+	if err == nil {
+		cc.mc.Set(&memcache.Item{
+			Key:        k,
+			Value:      result,
+			Expiration: int32(secs),
 		})
 	}
 }
@@ -104,7 +120,7 @@ func (cc *MultiClient) GetWithSet(key string, resultObj interface{}) (interface{
 	if err == nil {
 		err = json.Unmarshal(item.Value, resultObj)
 		if err == nil {
-			cc.client.Set(k, resultObj, 5*time.Minute)
+			cc.client.Set(k, resultObj, time.Duration(cc.expiration)*time.Second)
 			return resultObj, true
 		}
 	}
