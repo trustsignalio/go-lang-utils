@@ -84,6 +84,12 @@ func (cc *MultiClient) SetInMemory(key string, val interface{}) {
 	cc.client.Set(k, val, time.Duration(cc.expiration)*time.Second)
 }
 
+// DelFromMemory method will delete the object from memory
+func (cc *MultiClient) DelFromMemory(key string) {
+	k := cc.getKeyName(key)
+	cc.client.Delete(k)
+}
+
 // SetWithExpire method will set the object in both memory cache and memcache
 func (cc *MultiClient) SetWithExpire(key string, val interface{}, secs int) {
 	k := cc.getKeyName(key)
