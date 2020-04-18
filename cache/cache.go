@@ -162,14 +162,15 @@ func (cc *MultiClient) GetSliceOrBytes(key string) (interface{}, bool) {
 	return nil, false
 }
 
-// GetPrimitiveWithSet method tries to get the key from program memory cache and if
+// GetIntWithSet method tries to get the key from program memory cache and if
 // it fails then tries memcache and if the item is found in memcache then it
 // is set in program memory for faster lookup
-func (cc *MultiClient) GetPrimitiveWithSet(key string, resultObj interface{}) (interface{}, bool) {
+func (cc *MultiClient) GetIntWithSet(key string, resultObj int64) (int64, bool) {
 	k := cc.getKeyName(key)
 	result, found := cc.client.Get(k)
 	if found {
-		return result, found
+		r := result.(int64)
+		return r, found
 	}
 	item, err := cc.mc.Get(k)
 	if err == nil {
@@ -180,7 +181,7 @@ func (cc *MultiClient) GetPrimitiveWithSet(key string, resultObj interface{}) (i
 		}
 	}
 
-	return nil, false
+	return 0, false
 }
 
 // Delete method will remove the key from both memory cache and memcache
