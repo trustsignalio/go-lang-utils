@@ -26,7 +26,7 @@ func (t *TaskQueue) Start() {
 		for {
 			select {
 			case job := <-t.queue: // received a job
-				job.Process()
+				go job.Process()
 				t.wg.Done()
 
 			// We have been asked to stop the processing
