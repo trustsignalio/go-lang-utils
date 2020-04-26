@@ -30,8 +30,8 @@ func (t *TaskQueue) Start() {
 				case job := <-t.queue: // received a job
 					if job != nil {
 						job.Process()
+						t.wg.Done()
 					}
-					t.wg.Done()
 
 				// We have been asked to stop the processing
 				case <-t.quitChan:
