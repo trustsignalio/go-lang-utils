@@ -11,30 +11,34 @@ import (
 type TaskQueue struct {
 	queue    chan Job
 	quitChan chan bool
+	qlen     int
 	wg       sync.WaitGroup
 }
 
 // NewTaskQueue will create a new taskqueue of buffered job channel
 func NewTaskQueue(l int) *TaskQueue {
-	var t = &TaskQueue{queue: make(chan Job, l), quitChan: make(chan bool, 1)}
+	var t = &TaskQueue{queue: make(chan Job, l), quitChan: make(chan bool, l), qlen: l}
 	return t
 }
 
 // Start method will create a go routine that will process the work in background
 func (t *TaskQueue) Start() {
-	go func() {
-		for {
-			select {
-			case job := <-t.queue: // received a job
-				go job.Process()
-				t.wg.Done()
+	for i := 0; i < t.qlen; i++ {
+		go func() {
+			for {
+				select {
+				case job := <-t.queue: // received a job
+					job.Process()
+					t.wg.Done()
 
-			// We have been asked to stop the processing
-			case <-t.quitChan:
-				return
+				// We have been asked to stop the processing
+				case <-t.quitChan:
+					return
+				}
 			}
-		}
-	}()
+		}()
+	}
+
 }
 
 // AddJob method will add the job to the queue, this method is blocking since if
@@ -56,7 +60,9 @@ func (t *TaskQueue) Shutdown(ctx context.Context) error {
 	go func() {
 		t.wg.Wait()
 		close(t.queue)
-		t.quitChan <- true
+		for i := 0; i < t.qlen; i++ {
+			t.quitChan <- true
+		}
 		close(ch)
 	}()
 
