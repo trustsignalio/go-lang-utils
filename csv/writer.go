@@ -19,6 +19,7 @@ import (
 	"strings"
 	"unicode"
 	"unicode/utf8"
+	"errors"
 )
 
 // A Writer writes records using CSV encoding.
