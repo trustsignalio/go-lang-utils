@@ -178,7 +178,7 @@ func (w *Writer) fieldNeedsQuotes(field string) bool {
 	if w.AllQuotes {
 		return true
 	}
-	if field == `\.` || strings.ContainsRune(field, w.Comma) || strings.ContainsAny(field, "\"\r\n") {
+	if field == `\.` || strings.Contains(field, "'") || strings.ContainsRune(field, w.Comma) || strings.ContainsAny(field, "\"\r\n") {
 		return true
 	}
 
