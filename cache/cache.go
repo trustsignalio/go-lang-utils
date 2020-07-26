@@ -22,7 +22,7 @@ type MultiClient struct {
 
 func NewClient(prefix string, defCacheTime int) *Client {
 	var cacheTime = time.Duration(defCacheTime) * time.Minute
-	c := cache.New(cacheTime, 10*time.Minute)
+	c := cache.New(cacheTime, 5*time.Minute)
 
 	var cc = &Client{client: c, prefix: prefix}
 	return cc
@@ -47,7 +47,7 @@ func (cc *Client) Delete(key string) {
 // NewMultiClient method will return a pointer to MultiClient object
 func NewMultiClient(prefix, mcServer string, defCacheTime int) *MultiClient {
 	var cacheTime = time.Duration(defCacheTime) * time.Minute
-	c := cache.New(cacheTime, 10*time.Minute)
+	c := cache.New(cacheTime, 5*time.Minute)
 	mc := memcache.New(mcServer)
 	mc.Timeout = 20 * time.Millisecond
 	mc.MaxIdleConns = 500
