@@ -205,11 +205,13 @@ func DateQuery(start, end time.Time) bson.M {
 	return query
 }
 
-func getCacheKey(model Model, id string) string {
+// GetCacheKey method returns the cache key for model with id
+func GetCacheKey(model Model, id string) string {
 	return model.Table() + "::" + id
 }
 
-func findByID(coll *mongo.Collection, id string) *mongo.SingleResult {
+// FindByID method will try to find the document in collection with given id
+func FindByID(coll *mongo.Collection, id string) *mongo.SingleResult {
 	var duration = time.Second
 	var opts = &options.FindOneOptions{MaxTime: &duration}
 
