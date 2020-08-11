@@ -154,7 +154,7 @@ func FindOneWithOpts(db *mongo.Database, model Model, query bson.M, queryOpts *F
 }
 
 func clearCache(cacheClient *cache.Client, model Model, id string) {
-	cacheKey := getCacheKey(model, id)
+	cacheKey := GetCacheKey(model, id)
 	cacheClient.Delete(cacheKey)
 }
 
@@ -188,7 +188,7 @@ func UpdateMany(db *mongo.Database, model Model, query, updateObj bson.M) error 
 // CacheFirst method will try to find the object with given id in cache else it
 // will query the db and save the result in cache
 func CacheFirst(cacheClient *cache.Client, db *mongo.Database, model Model, id string) Model {
-	var cacheKey = getCacheKey(model, id)
+	var cacheKey = GetCacheKey(model, id)
 	var result, found = cacheClient.Get(cacheKey)
 	if found {
 		return result.(Model)
