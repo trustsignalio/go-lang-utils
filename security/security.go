@@ -1,11 +1,16 @@
 package security
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
 	"crypto/hmac"
+	cryptoRand "crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
+	"errors"
 	"fmt"
+	"io"
 	"math/rand"
 	"time"
 
@@ -72,4 +77,44 @@ func RandomString(n int) string {
 	}
 
 	return string(b)
+}
+
+// EncryptText method will encrypt the text using the key provided with
+// AES algo. Ref: https://tutorialedge.net/golang/go-encrypt-decrypt-aes-tutorial/
+func EncryptText(text, key []byte) ([]byte, error) {
+	c, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	gcm, err := cipher.NewGCM(c)
+	if err != nil {
+		return nil, err
+	}
+	nonce := make([]byte, gcm.NonceSize())
+	_, err = io.ReadFull(cryptoRand.Reader, nonce)
+	if err != nil {
+		return nil, err
+	}
+	return gcm.Seal(nonce, nonce, text, nil), nil
+}
+
+// DecryptText method will decrypt the text with help of a key
+// Ref: https://tutorialedge.net/golang/go-encrypt-decrypt-aes-tutorial/
+func DecryptText(ciphertext, key []byte) ([]byte, error) {
+	c, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	gcm, err := cipher.NewGCM(c)
+	if err != nil {
+		return nil, err
+	}
+	nonceSize := gcm.NonceSize()
+	if len(ciphertext) < nonceSize {
+		return nil, errors.New("Invalid ciphertext")
+	}
+	nonce, ciphertext := ciphertext[:nonceSize], ciphertext[nonceSize:]
+	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
+
+	return plaintext, err
 }
