@@ -73,3 +73,16 @@ func (m *Message) Send(msg []byte) bool {
 	}
 	return false
 }
+
+// SendWithID will check whether message delivery was acknowledged by the service
+func (m *Message) SendWithID(msg []byte) (string, bool) {
+	switch m.messageType {
+	case _pubSub:
+		var result = m.topic.Publish(m.ctx, &pubsub.Message{
+			Data: msg,
+		})
+		var serverID, err = result.Get(m.ctx)
+		return serverID, err != nil
+	}
+	return "", false
+}
