@@ -2,6 +2,7 @@ package messaging
 
 import (
 	"context"
+	"errors"
 
 	"cloud.google.com/go/pubsub"
 )
@@ -69,20 +70,20 @@ func (m *Message) Send(msg []byte) bool {
 		})
 		var _, err = result.Get(m.ctx)
 		// TODO: may be retry sending the message if it failed?
-		return err != nil
+		return err == nil
 	}
 	return false
 }
 
 // SendWithID will check whether message delivery was acknowledged by the service
-func (m *Message) SendWithID(msg []byte) (string, bool) {
+func (m *Message) SendWithID(msg []byte) (string, error) {
 	switch m.messageType {
 	case _pubSub:
 		var result = m.topic.Publish(m.ctx, &pubsub.Message{
 			Data: msg,
 		})
 		var serverID, err = result.Get(m.ctx)
-		return serverID, err != nil
+		return serverID, err
 	}
-	return "", false
+	return "", errors.New("Invalid message type")
 }
