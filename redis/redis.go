@@ -68,6 +68,13 @@ func (c *Client) GetConn() *redis.Client {
 }
 
 // HIncrBy will increment a hash map key
+func (c *Client) HIncrBy(key, field string, inc int64) int64 {
+	resp := c.conn.HIncrBy(key, field, inc)
+	result, _ := resp.Result()
+	return result
+}
+
+// HIncrBy will increment a hash map key
 func (c *Clientv2) HIncrBy(key, field string, inc int64) {
 	val := strconv.Itoa(int(inc))
 	c.pool.Do(radix.Cmd(nil, "HINCRBY", key, field, val))
