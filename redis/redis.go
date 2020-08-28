@@ -21,6 +21,8 @@ type ClientOptions struct {
 	DB              int
 }
 
+var dummyHashMap = make(map[string]string)
+
 // Client struct holds connection to redis
 type Client struct {
 	conn *redis.Client
@@ -71,6 +73,16 @@ func (c *Client) GetConn() *redis.Client {
 func (c *Client) HIncrBy(key, field string, inc int64) int64 {
 	resp := c.conn.HIncrBy(key, field, inc)
 	result, _ := resp.Result()
+	return result
+}
+
+// HGetAll will return the hash map
+func (c *Client) HGetAll(key string) map[string]string {
+	resp := c.conn.HGetAll(key)
+	result, err := resp.Result()
+	if err != nil {
+		return dummyHashMap
+	}
 	return result
 }
 
