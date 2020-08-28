@@ -29,8 +29,10 @@ type FindOptions struct {
 
 // AggregateOpts method is used for holding options while doing aggregation
 type AggregateOpts struct {
-	SumField    string
-	Sort, Limit interface{}
+	Match, Group bson.M
+	Project      []string
+	MaxTime      time.Duration
+	Limit        int
 }
 
 // CountDocs method will count the documents in a table based on query supplied
@@ -67,8 +69,28 @@ func ConvertIDs(ids []string) []primitive.ObjectID {
 }
 
 // Aggregate method will aggregate the collection and return the results accordingly
-func Aggregate(model Model, query bson.M, groupBy []string, extra *AggregateOpts, db *mongo.Database) {
+func Aggregate(db *mongo.Database, model Model, extra *AggregateOpts) ([]interface{}, error) {
+	var opts = &options.AggregateOptions{MaxTime: &extra.MaxTime}
+	var pipeline []bson.M
 
+	project := bson.M{}
+	for _, p := range extra.Project {
+		project[p] = 1
+	}
+	pipeline = append(pipeline, bson.M{"$match": extra.Match})
+	pipeline = append(pipeline, bson.M{"$project": project})
+	pipeline = append(pipeline, bson.M{"$group": extra.Group})
+	if extra.Limit > 0 {
+		pipeline = append(pipeline, bson.M{"$limit": extra.Limit})
+	}
+	var cursor, err = db.Collection(model.Table()).Aggregate(context.Background(), pipeline, opts)
+
+	var results []interface{}
+	if err != nil {
+		return nil, err
+	}
+	err = cursor.All(context.Background(), &results)
+	return results, err
 }
 
 // ToJSON method will convert the model to json string
