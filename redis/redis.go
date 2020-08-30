@@ -86,6 +86,16 @@ func (c *Client) HGetAll(key string) map[string]string {
 	return result
 }
 
+// Del method will remove single key from redis
+func (c *Client) Del(key string) {
+	c.conn.Del(key)
+}
+
+// DelMulti method will remove multiple keys from redis
+func (c *Client) DelMulti(keys []string) {
+	c.conn.Del(keys...)
+}
+
 // HIncrBy will increment a hash map key
 func (c *Clientv2) HIncrBy(key, field string, inc int64) {
 	val := strconv.Itoa(int(inc))
