@@ -200,6 +200,16 @@ func Save(db *mongo.Database, cacheClient *cache.Client, model Model, id string)
 	return err
 }
 
+// InsertMany method will insert documents in bulk inside the collection
+func InsertMany(db *mongo.Database, model Model, docs []interface{}) error {
+	var ordered = false
+	opts := &options.InsertManyOptions{
+		Ordered: &ordered,
+	}
+	_, err := db.Collection(model.Table()).InsertMany(context.Background(), docs, opts)
+	return err
+}
+
 // UpdateMany will update the rows of the table based on the query supplied
 func UpdateMany(db *mongo.Database, model Model, query, updateObj bson.M) error {
 	var updateOpts = &options.UpdateOptions{}
