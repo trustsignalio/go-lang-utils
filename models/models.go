@@ -25,6 +25,7 @@ type Model interface {
 type FindOptions struct {
 	Sort, Hint  interface{}
 	Limit, Skip *int64
+	BatchSize   *int32
 }
 
 // AggregateOpts method is used for holding options while doing aggregation
@@ -198,6 +199,20 @@ func Save(db *mongo.Database, cacheClient *cache.Client, model Model, id string)
 	clearCache(cacheClient, model, id)
 	model.ClearCacheData(cacheClient)
 	return err
+}
+
+// Query method will return cursor to the database
+func Query(db *mongo.Database, model Model, query bson.M, queryOpts *FindOptions) (*mongo.Cursor, error) {
+	var duration = time.Second
+	var opts = &options.FindOptions{MaxTime: &duration}
+	if queryOpts != nil {
+		opts.Sort = queryOpts.Sort
+		opts.Hint = queryOpts.Hint
+		opts.Limit = queryOpts.Limit
+		opts.Skip = queryOpts.Skip
+		opts.BatchSize = queryOpts.BatchSize
+	}
+	return db.Collection(model.Table()).Find(context.Background(), query, opts)
 }
 
 // InsertMany method will insert documents in bulk inside the collection
