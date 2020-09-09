@@ -74,7 +74,13 @@ func ISP(ip string) string {
 // Close method will close the maxmind db files
 func Close() {
 	fmt.Println("closing maxmind db files!!")
-	cityDb.Close()
-	ispDb.Close()
-	connDb.Close()
+	if cityDb != nil {
+		cityDb.Close()
+	}
+	if ispDb != nil {
+		ispDb.Close()
+	}
+	if connDb != nil {
+		connDb.Close()
+	}
 }
