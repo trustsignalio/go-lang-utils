@@ -222,7 +222,10 @@ func InsertMany(db *mongo.Database, model Model, docs []interface{}) ([]interfac
 		Ordered: &ordered,
 	}
 	r, err := db.Collection(model.Table()).InsertMany(context.Background(), docs, opts)
-	return r.InsertedIDs, err
+	if r != nil {
+		return r.InsertedIDs, err
+	}
+	return nil, err
 }
 
 // UpdateMany will update the rows of the table based on the query supplied
