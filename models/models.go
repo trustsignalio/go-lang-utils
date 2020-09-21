@@ -24,6 +24,7 @@ type Model interface {
 // FindOptions struct will contain the additional find information
 type FindOptions struct {
 	Sort, Hint  interface{}
+	Projection  interface{}
 	Limit, Skip *int64
 	BatchSize   *int32
 }
@@ -143,6 +144,7 @@ func FindAll(db *mongo.Database, model Model, query bson.M, queryOpts *FindOptio
 		opts.Hint = queryOpts.Hint
 		opts.Limit = queryOpts.Limit
 		opts.Skip = queryOpts.Skip
+		opts.Projection = queryOpts.Projection
 	}
 	var cur, err = db.Collection(model.Table()).Find(context.Background(), query, opts)
 	var dataArr []interface{}
