@@ -50,7 +50,7 @@ func NewMultiClient(prefix, mcServer string, defCacheTime int) *MultiClient {
 	c := cache.New(cacheTime, 5*time.Minute)
 	mc := memcache.New(mcServer)
 	mc.Timeout = 20 * time.Millisecond
-	mc.MaxIdleConns = 500
+	mc.MaxIdleConns = 1024
 
 	var cc = &MultiClient{client: c, mc: mc, prefix: prefix, expiration: int32(defCacheTime * 36)}
 	return cc
