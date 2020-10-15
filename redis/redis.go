@@ -109,9 +109,9 @@ func (c *Clientv2) HIncrByFloat(key, field string, inc float64) {
 }
 
 // SCard will get the size of set
-func (c *Clientv2) SCard(key, field string) int {
+func (c *Clientv2) SCard(key string) int {
 	var count int
-	c.pool.Do(radix.Cmd(&count, "SCARD", key, field))
+	c.pool.Do(radix.Cmd(&count, "SCARD", key))
 	return count
 }
 
