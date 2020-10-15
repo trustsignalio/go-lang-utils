@@ -53,13 +53,13 @@ func NewV2Client(opts *ClientOptions) *Clientv2 {
 	// Ref: https://github.com/mediocregopher/radix/blob/master/radix.go#L107
 	customConnFunc := func(network, addr string) (radix.Conn, error) {
 		return radix.Dial(network, addr,
-			radix.DialTimeout(20*time.Second),
+			radix.DialTimeout(500*time.Millisecond),
 			radix.DialAuthPass(opts.Password),
 			radix.DialSelectDB(opts.DB),
 		)
 	}
 
-	rclient, _ := radix.NewPool("tcp", opts.Host+":"+opts.Port, 10, radix.PoolConnFunc(customConnFunc))
+	rclient, _ := radix.NewPool("tcp", opts.Host+":"+opts.Port, 15, radix.PoolConnFunc(customConnFunc))
 	var client = &Clientv2{pool: rclient}
 	return client
 }
@@ -106,6 +106,27 @@ func (c *Clientv2) HIncrBy(key, field string, inc int64) {
 func (c *Clientv2) HIncrByFloat(key, field string, inc float64) {
 	val := fmt.Sprintf("%f", inc)
 	c.pool.Do(radix.Cmd(nil, "HINCRBYFLOAT", key, field, val))
+}
+
+// SCard will get the size of set
+func (c *Clientv2) SCard(key, field string) int {
+	var count int
+	c.pool.Do(radix.Cmd(&count, "SCARD", key, field))
+	return count
+}
+
+// SIsMember will will check if value is in the set
+func (c *Clientv2) SIsMember(key, val string) int {
+	var isMember int
+	c.pool.Do(radix.Cmd(&isMember, "SISMEMBER", key, val))
+	return isMember
+}
+
+// SAdd will add the member to the set
+func (c *Clientv2) SAdd(key, field string) int {
+	var success int
+	c.pool.Do(radix.Cmd(&success, "SADD", key, field))
+	return success
 }
 
 // Close method closes the redis connection
