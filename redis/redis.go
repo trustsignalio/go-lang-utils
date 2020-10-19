@@ -19,6 +19,7 @@ type ClientOptions struct {
 	MaxRetryBackOff time.Duration
 	WriteTimeout    time.Duration
 	DB              int
+	PoolSize        int
 }
 
 var dummyHashMap = make(map[string]string)
@@ -58,8 +59,12 @@ func NewV2Client(opts *ClientOptions) *Clientv2 {
 			radix.DialSelectDB(opts.DB),
 		)
 	}
+	poolSize := opts.PoolSize
+	if poolSize == 0 {
+		poolSize = 15
+	}
 
-	rclient, _ := radix.NewPool("tcp", opts.Host+":"+opts.Port, 15, radix.PoolConnFunc(customConnFunc))
+	rclient, _ := radix.NewPool("tcp", opts.Host+":"+opts.Port, poolSize, radix.PoolConnFunc(customConnFunc))
 	var client = &Clientv2{pool: rclient}
 	return client
 }
