@@ -14,6 +14,7 @@ type Config struct {
 type Params struct {
 	Sender, Subject string
 	Body, Recipient string
+	ReplyTo         string
 	CC, BCC         []string // CC emails
 	Timeout         int      // timeout in seconds
 }
@@ -23,6 +24,9 @@ func SendViaMailgun(conf *Config, params *Params) (string, string, error) {
 	mg := mailgun.NewMailgun(conf.Domain, conf.Key)
 	message := mg.NewMessage(params.Sender, params.Subject, params.Body, params.Recipient)
 	message.SetHtml(params.Body)
+	if len(params.ReplyTo) > 0 {
+		message.SetReplyTo(params.ReplyTo)
+	}
 
 	for _, emailID := range params.CC {
 		message.AddCC(emailID)
