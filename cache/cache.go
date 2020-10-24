@@ -13,6 +13,13 @@ type Client struct {
 	client *cache.Cache
 }
 
+type Config struct {
+	Prefix    string
+	MCServer  string
+	CacheTime int
+	MaxConns  int
+}
+
 type MultiClient struct {
 	prefix     string
 	expiration int32
@@ -53,6 +60,18 @@ func NewMultiClient(prefix, mcServer string, defCacheTime int) *MultiClient {
 	mc.MaxIdleConns = 1024
 
 	var cc = &MultiClient{client: c, mc: mc, prefix: prefix, expiration: int32(defCacheTime * 36)}
+	return cc
+}
+
+// NewMultiClientV2 method will return a pointer to MultiClient object
+func NewMultiClientV2(opts *Config) *MultiClient {
+	var cacheTime = time.Duration(opts.CacheTime) * time.Minute
+	c := cache.New(cacheTime, 5*time.Minute)
+	mc := memcache.New(opts.MCServer)
+	mc.Timeout = 20 * time.Millisecond
+	mc.MaxIdleConns = opts.MaxConns
+
+	var cc = &MultiClient{client: c, mc: mc, prefix: opts.Prefix, expiration: int32(opts.CacheTime * 36)}
 	return cc
 }
 
