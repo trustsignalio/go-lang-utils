@@ -54,7 +54,7 @@ func NewV2Client(opts *ClientOptions) *Clientv2 {
 	// Ref: https://github.com/mediocregopher/radix/blob/master/radix.go#L107
 	customConnFunc := func(network, addr string) (radix.Conn, error) {
 		return radix.Dial(network, addr,
-			radix.DialTimeout(500*time.Millisecond),
+			radix.DialTimeout(20*time.Second),
 			radix.DialAuthPass(opts.Password),
 			radix.DialSelectDB(opts.DB),
 		)

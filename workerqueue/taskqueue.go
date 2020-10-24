@@ -55,7 +55,7 @@ func (t *TaskQueue) AddJob(job Job) {
 func (t *TaskQueue) Shutdown(ctx context.Context) error {
 
 	// Create a channel to signal when the waitgroup is finished.
-	ch := make(chan struct{})
+	ch := make(chan struct{}, 1)
 
 	// Create a goroutine to wait for all other goroutines to
 	// be done then close the channel to unblock the select.
@@ -65,6 +65,7 @@ func (t *TaskQueue) Shutdown(ctx context.Context) error {
 		for i := 0; i < t.qlen; i++ {
 			t.quitChan <- true
 		}
+		ch <- struct{}{}
 		close(ch)
 	}()
 
