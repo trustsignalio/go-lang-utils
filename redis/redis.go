@@ -36,6 +36,10 @@ type Clientv2 struct {
 
 // NewClient method will return a pointer to new client object
 func NewClient(opts *ClientOptions) *Client {
+	var poolSize = 20
+	if opts.PoolSize > 0 {
+		poolSize = opts.PoolSize
+	}
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:            opts.Host + ":" + opts.Port,
 		Password:        opts.Password,
@@ -44,6 +48,7 @@ func NewClient(opts *ClientOptions) *Client {
 		MinRetryBackoff: opts.MinRetryBackOff,
 		MaxRetryBackoff: opts.MaxRetryBackOff,
 		WriteTimeout:    opts.WriteTimeout,
+		PoolSize:        poolSize,
 	})
 	var client = &Client{conn: redisClient}
 	return client
