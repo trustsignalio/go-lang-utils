@@ -87,3 +87,13 @@ func (m *Message) SendWithID(msg []byte) (string, error) {
 	}
 	return "", errors.New("Invalid message type")
 }
+
+// SendBackground delivers the message in background
+func (m *Message) SendBackground(msg []byte) {
+	switch m.messageType {
+	case _pubSub:
+		m.topic.Publish(m.ctx, &pubsub.Message{
+			Data: msg,
+		})
+	}
+}
