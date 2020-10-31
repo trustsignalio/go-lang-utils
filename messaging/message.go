@@ -97,3 +97,13 @@ func (m *Message) SendBackground(msg []byte) {
 		})
 	}
 }
+
+// Stop method will stop all the go-routines
+func (m *Message) Stop() {
+	switch m.messageType {
+	case _pubSub:
+		if m.topic != nil {
+			m.topic.Stop()
+		}
+	}
+}
