@@ -27,6 +27,7 @@ type FindOptions struct {
 	Projection  interface{}
 	Limit, Skip *int64
 	BatchSize   *int32
+	Timeout     time.Duration
 }
 
 // AggregateOpts method is used for holding options while doing aggregation
@@ -145,6 +146,9 @@ func FindAll(db *mongo.Database, model Model, query bson.M, queryOpts *FindOptio
 		opts.Limit = queryOpts.Limit
 		opts.Skip = queryOpts.Skip
 		opts.Projection = queryOpts.Projection
+		if queryOpts.Timeout > 0 {
+			opts.MaxTime = &queryOpts.Timeout
+		}
 	}
 	var cur, err = db.Collection(model.Table()).Find(context.Background(), query, opts)
 	var dataArr []interface{}
@@ -170,6 +174,9 @@ func FindOneWithOpts(db *mongo.Database, model Model, query bson.M, queryOpts *F
 		opts.Sort = queryOpts.Sort
 		opts.Hint = queryOpts.Hint
 		opts.Skip = queryOpts.Skip
+		if queryOpts.Timeout > 0 {
+			opts.MaxTime = &queryOpts.Timeout
+		}
 	}
 	var result = db.Collection(model.Table()).FindOne(context.Background(), query, opts)
 	if result.Err() == nil {
@@ -213,6 +220,9 @@ func Query(db *mongo.Database, model Model, query bson.M, queryOpts *FindOptions
 		opts.Limit = queryOpts.Limit
 		opts.Skip = queryOpts.Skip
 		opts.BatchSize = queryOpts.BatchSize
+		if queryOpts.Timeout > 0 {
+			opts.MaxTime = &queryOpts.Timeout
+		}
 	}
 	return db.Collection(model.Table()).Find(context.Background(), query, opts)
 }
