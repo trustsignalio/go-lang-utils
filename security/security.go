@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"crypto/md5"
+	"hash/fnv"
 )
 
 const (
@@ -96,6 +97,13 @@ func EncryptText(text, key []byte) ([]byte, error) {
 		return nil, err
 	}
 	return gcm.Seal(nonce, nonce, text, nil), nil
+}
+
+// HashStr method will hash the string to int32 value
+func HashStr(value string) uint32 {
+	h := fnv.New32a()
+	h.Write([]byte(value))
+	return h.Sum32()
 }
 
 // DecryptText method will decrypt the text with help of a key
