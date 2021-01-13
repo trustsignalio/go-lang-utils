@@ -38,6 +38,7 @@ type Response struct {
 	Header       map[string][]string
 	Cookies      []*netHttp.Cookie
 	Latency      int64
+	Retries      int
 }
 
 // NewClient method returns a pointer to the Client
@@ -93,6 +94,7 @@ func (c *Client) Request(opts *RequestOptions) (*Response, error) {
 		respData.Cookies = resp.Cookies()
 		respData.Header = resp.Header
 		respData.Latency = latency
+		respData.Retries = index
 
 		if readErr != nil {
 			return respData, readErr
