@@ -37,6 +37,7 @@ type Response struct {
 	StatusCode   int
 	Header       map[string][]string
 	Cookies      []*netHttp.Cookie
+	Latency      int64
 }
 
 // NewClient method returns a pointer to the Client
@@ -75,6 +76,7 @@ func (c *Client) Request(opts *RequestOptions) (*Response, error) {
 	}
 	var respData = &Response{}
 	for index := 0; index < opts.Retries; index++ {
+		start := time.Now()
 		var resp, err = c.backendClient.Do(req)
 		if err != nil {
 			lastError = err
@@ -82,6 +84,7 @@ func (c *Client) Request(opts *RequestOptions) (*Response, error) {
 			time.Sleep(opts.RetryInterval)
 			continue
 		}
+		latency := (time.Now().UnixNano() - start.UnixNano()) / 1000000
 		defer resp.Body.Close()
 		body, readErr := ioutil.ReadAll(resp.Body)
 		respData.Body = string(body)
@@ -89,6 +92,7 @@ func (c *Client) Request(opts *RequestOptions) (*Response, error) {
 		respData.StatusCode = resp.StatusCode
 		respData.Cookies = resp.Cookies()
 		respData.Header = resp.Header
+		respData.Latency = latency
 
 		if readErr != nil {
 			return respData, readErr
