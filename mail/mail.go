@@ -5,10 +5,15 @@ import (
 	"time"
 
 	"github.com/mailgun/mailgun-go"
+	mailjet "github.com/mailjet/mailjet-apiv3-go"
 )
 
 type Config struct {
 	Key, Domain string
+}
+
+type MailjetConfig struct {
+	PubKey, PrivateKey string
 }
 
 type Params struct {
@@ -17,6 +22,13 @@ type Params struct {
 	ReplyTo         string
 	CC, BCC         []string // CC emails
 	Timeout         int      // timeout in seconds
+}
+
+type MailjetParams struct {
+	SenderEmail, SenderName string
+	RecipientEmail, RecipientName string
+	Subject string
+	TextPart, HtmlPart string
 }
 
 // SendViaMailgun will try to send the mail using mailgun
@@ -39,4 +51,32 @@ func SendViaMailgun(conf *Config, params *Params) (string, string, error) {
 
 	resp, id, err := mg.Send(ctx, message)
 	return resp, id, err
+}
+
+// SendViaMailjet will try to send the mail using mailjet
+func SendViaMailjet(conf *MailjetConfig, params *Params) (string, error) {
+	mailjetClient := mailjet.NewMailjetClient(conf.PubKey, conf.PrivateKey)
+	messagesInfo := []mailjet.InfoMessagesV31 {
+		mailjet.InfoMessagesV31{
+		  From: &mailjet.RecipientV31{
+			Email: params.SenderEmail,
+			Name: params.SenderName,
+		  },
+		  To: &mailjet.RecipientsV31{
+			mailjet.RecipientV31 {
+			  Email: params.RecipientEmail,
+			  Name: params.RecipientName,
+			},
+		  },
+		  Subject: params.Subject,
+		  TextPart: params.TextPart,
+		  HTMLPart: params.HTMLPart
+		},
+	}
+	messages := mailjet.MessagesV31{Info: messagesInfo}
+	res, err := mailjetClient.SendMailV31(&messages)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return res, err
 }
