@@ -25,7 +25,7 @@ type Params struct {
 }
 
 type MailjetParams struct {
-	SenderEmail string
+	SenderEmail, SenderName, ReplyToEmail string
 	RecipientEmail []string
 	Subject string
 	CC, BCC []string
@@ -56,13 +56,13 @@ func SendViaMailgun(conf *Config, params *Params) (string, string, error) {
 }
 
 // SendViaMailjet will try to send the mail using mailjet
-func SendViaMailjet(conf *MailjetConfig, params *Params) (string, error) {
+func SendViaMailjet(conf *MailjetConfig, params *MailjetParams) (string, error) {
 	mailjetClient := mailjet.NewMailjetClient(conf.PubKey, conf.PrivateKey)
 	var toMailjetRecepient, ccMailjetRecepient, bccMailjetRecepient mailjet.RecipientsV31
 
 	for _, emailID := range params.RecipientEmail {
 		toMailjetRecepient = append(toMailjetRecepient, mailjet.RecipientV31 {
-					Email: emailID,
+			Email: emailID,
 		})
 	}
 
@@ -84,6 +84,9 @@ func SendViaMailjet(conf *MailjetConfig, params *Params) (string, error) {
 			Email: params.SenderEmail,
 			Name: params.SenderName,
 		  },
+		  ReplyTo: &mailjet.RecipientV31{
+			  Email: params.ReplyToEmail,
+		  }
 		  To: toMailjetRecepient,
 		  CC: ccMailjetRecepient,
 		  BCC: bccMailjetRecepient,
