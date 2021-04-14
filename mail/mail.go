@@ -92,7 +92,7 @@ func SendViaMailjet(conf *MailjetConfig, params *MailjetParams) (string, error) 
 		  BCC: bccMailjetRecepient,
 		  Subject: params.Subject,
 		  TextPart: params.TextPart,
-		  HTMLPart: params.HTMLPart
+		  HTMLPart: params.HTMLPart,
 		},
 	}
 	messages := mailjet.MessagesV31{Info: messagesInfo}
