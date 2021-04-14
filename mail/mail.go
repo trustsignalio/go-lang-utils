@@ -86,7 +86,7 @@ func SendViaMailjet(conf *MailjetConfig, params *MailjetParams) (string, error) 
 		  },
 		  ReplyTo: &mailjet.RecipientV31{
 			  Email: params.ReplyToEmail,
-		  }
+		  },
 		  To: toMailjetRecepient,
 		  CC: ccMailjetRecepient,
 		  BCC: bccMailjetRecepient,
