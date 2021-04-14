@@ -5,10 +5,15 @@ import (
 	"time"
 
 	"github.com/mailgun/mailgun-go"
+	mailjet "github.com/mailjet/mailjet-apiv3-go"
 )
 
 type Config struct {
 	Key, Domain string
+}
+
+type MailjetConfig struct {
+	PubKey, PrivateKey string
 }
 
 type Params struct {
@@ -18,6 +23,15 @@ type Params struct {
 	CC, BCC         []string // CC emails
 	Timeout         int      // timeout in seconds
 }
+
+type MailjetParams struct {
+	SenderEmail, SenderName, ReplyToEmail string
+	RecipientEmail []string
+	Subject string
+	CC, BCC []string
+	TextPart, HtmlPart string
+}
+
 
 // SendViaMailgun will try to send the mail using mailgun
 func SendViaMailgun(conf *Config, params *Params) (string, string, error) {
@@ -39,4 +53,49 @@ func SendViaMailgun(conf *Config, params *Params) (string, string, error) {
 
 	resp, id, err := mg.Send(ctx, message)
 	return resp, id, err
+}
+
+// SendViaMailjet will try to send the mail using mailjet
+func SendViaMailjet(conf *MailjetConfig, params *MailjetParams) (string, error) {
+	mailjetClient := mailjet.NewMailjetClient(conf.PubKey, conf.PrivateKey)
+	var toMailjetRecepient, ccMailjetRecepient, bccMailjetRecepient mailjet.RecipientsV31
+
+	for _, emailID := range params.RecipientEmail {
+		toMailjetRecepient = append(toMailjetRecepient, mailjet.RecipientV31 {
+			Email: emailID,
+		})
+	}
+
+	for _, emailID := range params.CC {
+		ccMailjetRecepient = append(ccMailjetRecepient, mailjet.RecipientV31 {
+			Email: emailID,
+		})
+	}
+
+	for _, emailID := range params.BCC {
+		bccMailjetRecepient = append(ccMailjetRecepient, mailjet.RecipientV31 {
+			Email: emailID,
+		})
+	}
+
+	messagesInfo := []mailjet.InfoMessagesV31 {
+		mailjet.InfoMessagesV31{
+		  From: &mailjet.RecipientV31{
+			Email: params.SenderEmail,
+			Name: params.SenderName,
+		  },
+		  ReplyTo: &mailjet.RecipientV31{
+			  Email: params.ReplyToEmail,
+		  },
+		  To: toMailjetRecepient,
+		  CC: ccMailjetRecepient,
+		  BCC: bccMailjetRecepient,
+		  Subject: params.Subject,
+		  TextPart: params.TextPart,
+		  HTMLPart: params.HTMLPart,
+		},
+	}
+	messages := mailjet.MessagesV31{Info: messagesInfo}
+	res, err := mailjetClient.SendMailV31(&messages)
+	return res, err
 }
