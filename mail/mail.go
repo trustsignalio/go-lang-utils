@@ -74,7 +74,7 @@ func SendViaMailjet(conf *MailjetConfig, params *MailjetParams) (*mailjet.Result
 	}
 
 	for _, emailID := range params.BCC {
-		bccMailjetRecepient = append(ccMailjetRecepient, mailjet.RecipientV31{
+		bccMailjetRecepient = append(bccMailjetRecepient, mailjet.RecipientV31{
 			Email: emailID,
 		})
 	}
