@@ -31,7 +31,6 @@ type MailjetParams struct {
 	Subject                               string
 	CC, BCC                               []string
 	TextPart, HtmlPart                    string
-	Macros                                map[string]string
 }
 
 // SendViaMailgun will try to send the mail using mailgun
@@ -80,9 +79,6 @@ func SendViaMailjet(conf *MailjetConfig, params *MailjetParams) (*mailjet.Result
 	}
 
 	htmlContent := params.HtmlPart
-	for k, v := range params.Macros {
-		htmlContent = strings.ReplaceAll(htmlContent, k, v)
-	}
 
 	messagesInfo := []mailjet.InfoMessagesV31{
 		mailjet.InfoMessagesV31{
