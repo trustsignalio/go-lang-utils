@@ -2,7 +2,6 @@ package mail
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	"github.com/mailgun/mailgun-go"
