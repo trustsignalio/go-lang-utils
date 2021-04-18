@@ -43,6 +43,10 @@ func (cc *Client) Set(key string, val interface{}) {
 	cc.client.SetDefault(cc.getKeyName(key), val)
 }
 
+func (cc *Client) SetWithExpire(key string, val interface{}, duration time.Duration) {
+	cc.client.Set(cc.getKeyName(key), val, duration)
+}
+
 func (cc *Client) Get(key string) (interface{}, bool) {
 	return cc.client.Get(cc.getKeyName(key))
 }
