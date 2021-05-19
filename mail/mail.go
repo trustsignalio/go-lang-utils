@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/mailgun/mailgun-go"
+	"github.com/mailgun/mailgun-go/v4"
 	mailjet "github.com/mailjet/mailjet-apiv3-go"
 )
 
