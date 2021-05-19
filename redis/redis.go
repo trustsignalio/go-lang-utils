@@ -1,13 +1,16 @@
 package redis
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"time"
 
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v8"
 	"github.com/mediocregopher/radix/v3"
 )
+
+var ctx = context.Background()
 
 // ClientOptions struct contains the options for connecting to redis
 type ClientOptions struct {
@@ -81,14 +84,14 @@ func (c *Client) GetConn() *redis.Client {
 
 // HIncrBy will increment a hash map key
 func (c *Client) HIncrBy(key, field string, inc int64) int64 {
-	resp := c.conn.HIncrBy(key, field, inc)
+	resp := c.conn.HIncrBy(ctx, key, field, inc)
 	result, _ := resp.Result()
 	return result
 }
 
 // HGetAll will return the hash map
 func (c *Client) HGetAll(key string) map[string]string {
-	resp := c.conn.HGetAll(key)
+	resp := c.conn.HGetAll(ctx, key)
 	result, err := resp.Result()
 	if err != nil {
 		return dummyHashMap
@@ -98,12 +101,12 @@ func (c *Client) HGetAll(key string) map[string]string {
 
 // Del method will remove single key from redis
 func (c *Client) Del(key string) {
-	c.conn.Del(key)
+	c.conn.Del(ctx, key)
 }
 
 // DelMulti method will remove multiple keys from redis
 func (c *Client) DelMulti(keys []string) {
-	c.conn.Del(keys...)
+	c.conn.Del(ctx, keys...)
 }
 
 // HIncrBy will increment a hash map key
