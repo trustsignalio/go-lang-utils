@@ -18,6 +18,7 @@ type Config struct {
 	MCServer  string
 	CacheTime int
 	MaxConns  int
+	Timeout   time.Duration
 }
 
 type MultiClient struct {
@@ -74,6 +75,9 @@ func NewMultiClientV2(opts *Config) *MultiClient {
 	mc := memcache.New(opts.MCServer)
 	mc.Timeout = 20 * time.Millisecond
 	mc.MaxIdleConns = opts.MaxConns
+	if opts.Timeout > 0 {
+		mc.Timeout = opts.Timeout
+	}
 
 	var cc = &MultiClient{client: c, mc: mc, prefix: opts.Prefix, expiration: int32(opts.CacheTime * 36)}
 	return cc
