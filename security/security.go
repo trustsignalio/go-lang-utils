@@ -42,6 +42,13 @@ func Sha256(message []byte) string {
 	return hex.EncodeToString(expectedMAC)
 }
 
+func Sha256WithKey(message []byte, key string) string {
+	mac := hmac.New(sha256.New, []byte(key))
+	mac.Write(message)
+	expectedMAC := mac.Sum(nil)
+	return hex.EncodeToString(expectedMAC)
+}
+
 func MakeTrackSecret(message string) string {
 	msg := []byte(message)
 	hash := Sha256(msg)
@@ -55,6 +62,11 @@ func Base64Decode(str string) string {
 
 func Base64Encode(data string) string {
 	enc := base64.StdEncoding.EncodeToString([]byte(data))
+	return enc
+}
+
+func Base64EncodeWithoutPadding(data string) string {
+	enc := base64.RawURLEncoding.EncodeToString([]byte(data))
 	return enc
 }
 
