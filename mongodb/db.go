@@ -2,7 +2,7 @@ package mongodb
 
 import (
 	"context"
-
+	"time"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -23,27 +23,16 @@ type Client struct {
 }
 
 // NewClient method takes a config map argument
-func NewClient(conf Config) (*Client, error) {
+func NewClient(conf Config, connnectionStr string) (*Client, error) {
 	var client = &Client{}
-	var auth = &options.Credential{
-		AuthSource: conf.AuthSource,
-		Username:   conf.Username,
-		Password:   conf.Password,
-	}
-	var rs = conf.Opts
-	var opts = &options.ClientOptions{
-		Hosts:      conf.Hosts,
-		ReplicaSet: &rs,
-	}
-	if len(conf.Username) > 0 && len(conf.Password) > 0 {
-		opts.Auth = auth
-	}
-	mongoClient, err := mongo.Connect(context.TODO(), opts)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	mclient, err := mongo.Connect(ctx, options.Client().ApplyURI(connnectionStr))
 	if err != nil {
 		return nil, err
 	}
-	client.mclient = mongoClient
-	client.db = mongoClient.Database(conf.Database)
+	client.mclient = mclient
+	client.db = mclient.Database(conf.Database)
 	return client, nil
 }
 
