@@ -8,7 +8,7 @@
 // license that can be found in the LICENSE file.
 
 // An alternative to standard CSV implementation of Go (https://github.com/golang/go/tree/master/src/encoding/csv),
-// and modified by Hemant Mann (https://github.com/sachin-dianapps/go-utils/csv),
+// and modified by Hemant Mann (https://github.com/CloudStuffTech/go-utils-mongo/csv),
 // to add additional feature of quoting all fields manually
 
 package csv
