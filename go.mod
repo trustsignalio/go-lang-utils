@@ -1,4 +1,4 @@
-module github.com/CloudStuffTech/go-utils
+module github.com/CloudStuffTech/go-utils-mongo
 
 go 1.16
 
