@@ -267,6 +267,13 @@ func DateQuery(start, end time.Time) bson.M {
 	return query
 }
 
+// DateQuery will return the bson representation to query daterange between
+// 2 time intervals
+func DateQuery2(start, end time.Time) bson.M {
+	var query = bson.M{"$gt": start, "$lt": end}
+	return query
+}
+
 // GetCacheKey method returns the cache key for model with id
 func GetCacheKey(model Model, id string) string {
 	return model.Table() + "::" + id
