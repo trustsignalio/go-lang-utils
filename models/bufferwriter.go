@@ -8,7 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/sachin-dianapps/go-utils-mongo/messaging"
+	"github.com/trustsignalio/go-lang-utils/messaging"
 )
 
 var mu sync.Mutex

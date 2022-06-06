@@ -109,6 +109,16 @@ func (c *Client) HGet(key, field string) (string, bool) {
 	return result, true
 }
 
+// Set will create a key in redis
+func (c *Client) Set(key, field string, expiration time.Duration) {
+	c.conn.Set(ctx, key, field, expiration)
+}
+
+func (c *Client) Keys(pattern string) *redis.StringSliceCmd {
+	result := c.conn.Keys(ctx, pattern)
+	return result
+}
+
 // Del method will remove single key from redis
 func (c *Client) Del(key string) {
 	c.conn.Del(ctx, key)
