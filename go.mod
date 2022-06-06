@@ -1,4 +1,4 @@
-module github.com/sachin-dianapps/go-utils-mongo
+module github.com/trustsignalio/go-lang-utils
 
 go 1.16
 
