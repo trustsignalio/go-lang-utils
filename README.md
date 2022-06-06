@@ -1,6 +1,6 @@
 # GO utils
 
-Common functions, structs that can be used with any go project of cloudstuff
+This is a fork Common functions, structs that can be used with any go project of cloudstuff
 
 ## Deps
 ```
