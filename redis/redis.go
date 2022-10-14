@@ -89,6 +89,13 @@ func (c *Client) HIncrBy(key, field string, inc int64) int64 {
 	return result
 }
 
+// HIncrByFloat will increment a hash map key
+func (c *Client) HIncrByFloat(key, field string, inc float64) float64 {
+	resp := c.conn.HIncrByFloat(ctx, key, field, inc)
+	result, _ := resp.Result()
+	return result
+}
+
 // HGetAll will return the hash map
 func (c *Client) HGetAll(key string) map[string]string {
 	resp := c.conn.HGetAll(ctx, key)
